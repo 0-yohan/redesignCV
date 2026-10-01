@@ -1,0 +1,19 @@
+{
+  "name": "Rupam Wadibhasme",
+  "headline": "Copilot Studio Developer — Power Platform & AI Agent Orchestration  │  MBA, RTM Nagpur University",
+  "summary": "Copilot Studio Developer with 4+ years in Power Platform and conversational AI development, designing enterprise AI agents on Microsoft Copilot Studio and integrating them with enterprise systems through Power Automate, custom connectors, REST APIs, and MCP.",
+  "parameters": [
+    {"param":"Microsoft Foundry Orchestration","rating":1,"evidence":"Gap — Azure OpenAI and LLM integration present, but no Microsoft Foundry orchestration or agent service experience."},
+    {"param":"Copilot Studio Development (Topic Routing, Generative Orchestration, Adaptive Cards)","rating":5,"evidence":"Direct match — multi-topic agents built with topic routing and generative orchestration, adaptive cards, custom entities, and multi-agent design."},
+    {"param":"MCP Development (Model Context Protocol)","rating":4,"evidence":"Direct match — AI agents integrated with enterprise CRM/ITSM tools via MCP for ticket creation in ServiceNow; MCP consumed rather than authored."},
+    {"param":"Power Apps","rating":2.5,"evidence":"Partial match — Power Apps listed in the skill set; no canvas or model-driven app development described."}
+  ],
+  "sections": [
+    {"heading":"Professional Experience","entries":[
+      {"title":"Senior Analyst, Process Improvement & AI Automation — Magnit Global","meta":"India  |  Mar 2025 – Present","bullets":["Design and develop AI-powered conversational agents on Microsoft Copilot Studio and Power Platform.","Achieved approximately 75% reduction in processing time, saving 20+ hours per week through intelligent automation."]}
+    ]},
+    {"heading":"Education","entries":[{"title":"MBA, Operations & Finance","meta":"Rashtrasant Tukadoji Maharaj Nagpur University  |  Grade A  |  2020 – 2022","bullets":[]}]}
+  ],
+  "flags": [{"severity":"high","text":"JD names Microsoft Foundry as a key area; nothing in the resume covers it."},{"severity":"info","text":"JD asks 6–10+ years; about 8 years of history but roughly 2 in banking operations."}],
+  "questions": ["Does he have any Power Apps canvas or model-driven app work that is not on the resume?"]
+}

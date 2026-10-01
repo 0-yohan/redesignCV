@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Orikami - CV redesign</title>
+<link rel="icon" type="image/png" href="/orikami-logo.png">
+<style>
+  :root{--navy:#0F1E33;--navy2:#1B3150;--teal:#1F6F6B;--mint:#BFEFEA;--gold:#E8A33D;--bg:#F3F6F9;--card:#fff;--line:#DCE2E8;--text:#1d2733;--muted:#5b6672;--red:#B3261E;--amber:#B26A00;--ok:#1E7A4C;--shadow:0 1px 2px rgba(15,30,51,.06),0 4px 14px rgba(15,30,51,.05)}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font:15px/1.55 "Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text)}
+  header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 60%,#1F4F5C 100%);color:#fff;padding:34px 24px 64px}
+  .wrap{max-width:1100px;margin:0 auto}
+  header h1{margin:0;font-size:26px;letter-spacing:.2px;font-weight:650}
+  header p{margin:6px 0 0;color:var(--mint);font-size:14.5px;max-width:640px}
+  main{max-width:1100px;margin:-40px auto 0;padding:0 16px 70px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow);display:flex;flex-direction:column}
+  .card h2{margin:0 0 2px;font-size:16px;color:var(--navy);display:flex;align-items:center}
+  .card .sub{margin:2px 0 14px;font-size:13px;color:var(--muted)}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--teal);color:#fff;font-size:12.5px;font-weight:600;margin-right:9px;flex:none}
+  .tabs{display:flex;gap:4px;margin-bottom:10px;background:#EEF2F5;padding:3px;border-radius:9px}
+  .tabs button{flex:1;padding:6px;border:0;background:transparent;border-radius:7px;cursor:pointer;font:inherit;font-size:13px;color:var(--muted)}
+  .tabs button.on{background:#fff;color:var(--navy);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+  textarea,input[type=password]{width:100%;border:1px solid var(--line);border-radius:9px;padding:10px;font:inherit;font-size:14px;resize:vertical;background:#fff;color:var(--text)}
+  textarea:focus,input:focus,select:focus,button:focus-visible,.drop:focus-within{outline:2px solid var(--teal);outline-offset:1px}
+  textarea{min-height:170px}
+  .drop{display:block;border:2px dashed #C3CCD5;border-radius:11px;padding:26px 12px;text-align:center;color:var(--muted);cursor:pointer;font-size:13.5px;transition:.15s;background:#FAFBFC}
+  .drop:hover,.drop.over{border-color:var(--teal);background:#F0FAF9;color:var(--teal)}
+  .drop.has{border-style:solid;border-color:var(--teal);color:var(--teal);background:#F0FAF9;font-weight:600}
+  .drop input{position:absolute;opacity:0;width:0;height:0}
+  .drop .ico{display:block;font-size:22px;margin-bottom:4px}
+  .pill{display:inline-block;background:#E7F5F3;color:var(--teal);border-radius:999px;padding:4px 12px;font-size:12.5px;font-weight:600;margin-bottom:8px}
+  .link{color:var(--teal);cursor:pointer;font:inherit;font-size:13px;text-decoration:underline;background:none;border:0;padding:0}
+  .bar{display:flex;gap:12px;align-items:center;margin:20px 0;flex-wrap:wrap}
+  button.go{background:var(--navy);color:#fff;border:0;border-radius:10px;padding:12px 26px;font:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:9px}
+  button.go:hover:not(:disabled){background:var(--navy2);transform:translateY(-1px)}
+  button.go:disabled{opacity:.55;cursor:default}
+  button.alt{background:#fff;color:var(--navy);border:1px solid #9FB0C2;border-radius:10px;padding:11px 18px;cursor:pointer;font:inherit;font-size:14px;transition:.15s}
+  button.alt:hover:not(:disabled){border-color:var(--navy);background:#F5F8FB}
+  button.alt:disabled{opacity:.45;cursor:default}
+  .spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite;display:none}
+  .busy .spin{display:inline-block}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .note{font-size:14px;color:var(--muted)}
+  .alert{display:none;flex:1 1 100%;border-radius:10px;padding:11px 14px;font-size:14px;background:#FDECEA;border:1px solid #F3C0BB;color:#7A1812}
+  .alert.show{display:block}
+  .alert.warn{background:#FFF8E6;border-color:#F0DDA8;color:#6b4a00}
+  #review{display:none;animation:in .3s ease}
+  @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  h3{color:var(--navy);margin:30px 0 8px;font-size:18px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  h3 small{font-weight:400;color:var(--muted);font-size:13px}
+  .flags .f{border-left:4px solid var(--teal);background:#fff;padding:9px 13px;margin:7px 0;border-radius:6px;font-size:14px;box-shadow:var(--shadow)}
+  .f.high{border-color:var(--red)} .f.medium{border-color:var(--amber)}
+  .f b{font-size:11px;text-transform:uppercase;letter-spacing:.6px;margin-right:8px}
+  .f.high b{color:var(--red)} .f.medium b{color:var(--amber)} .f.info b{color:var(--teal)}
+  .q{background:#FFF8E6;border:1px solid #F0DDA8;border-radius:10px;padding:12px 16px;margin:12px 0;font-size:14px}
+  .q ul{margin:6px 0}
+  .tbl{background:#fff;border:1px solid var(--line);border-radius:12px;overflow-x:auto;box-shadow:var(--shadow)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px}
+  th{background:var(--navy);color:#fff;text-align:left;padding:10px;font-weight:600}
+  td{border-top:1px solid var(--line);padding:10px;vertical-align:top}
+  tr.edited td.r{background:#FFFBEF}
+  td.p{font-weight:600;color:var(--navy);width:26%}
+  td.r{width:150px;text-align:center;white-space:nowrap}
+  .st{color:var(--gold);font-size:17px;letter-spacing:1px;display:block}
+  .chg{display:block;font-size:11.5px;color:var(--amber);min-height:17px}
+  select{padding:4px 6px;border-radius:7px;border:1px solid var(--line);font:inherit;font-size:13px;background:#fff}
+  td textarea{min-height:68px;font-size:13px}
+  .doc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;font-size:14px;box-shadow:var(--shadow)}
+  .doc h4{margin:18px 0 5px;color:var(--navy);border-bottom:2px solid var(--navy);padding-bottom:3px;font-size:14.5px}
+  .doc .t{font-weight:700;color:var(--navy);margin-top:9px}.doc .m{font-style:italic;color:var(--teal);font-size:12.5px}
+  .doc li{margin:2px 0}
+  details summary{cursor:pointer;color:var(--teal);font-size:13.5px}
+  .steps{display:none;margin-top:6px;font-size:13px;color:var(--muted)}
+  .busy ~ .steps{display:block}
+  footer{text-align:center;color:var(--muted);font-size:12.5px;padding:0 16px 30px}
+
+  /* cross-check panel */
+  .toplink{background:none;border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:8px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;white-space:nowrap}
+  .toplink:hover{background:rgba(255,255,255,.12)}
+  .hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+  #cxShade{position:fixed;inset:0;background:rgba(15,30,51,.35);opacity:0;pointer-events:none;transition:.2s;z-index:20}
+  #cxShade.on{opacity:1;pointer-events:auto}
+  #cx{position:fixed;top:0;right:0;bottom:0;width:min(460px,100vw);background:#fff;z-index:21;transform:translateX(100%);visibility:hidden;transition:transform .22s,visibility .22s;box-shadow:-8px 0 30px rgba(15,30,51,.18);display:flex;flex-direction:column}
+  #cx.on{transform:none;visibility:visible}
+  #cx .top{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)}
+  #cx .top b{color:var(--navy);font-size:16px}
+  #cx .x{background:none;border:0;font-size:24px;cursor:pointer;color:var(--muted);line-height:1}
+  #cx .body{padding:14px 18px;overflow-y:auto;flex:1}
+  #cx label.f{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;font-weight:600;color:var(--navy);margin:12px 0 4px}
+  #cx textarea{min-height:64px;height:64px;font-size:13px}
+  #cx .fn{font-size:12.5px;color:var(--teal);margin-top:3px}
+  #cx .res{margin-top:16px}
+  .verdict{display:inline-block;border-radius:999px;padding:3px 12px;font-size:12.5px;font-weight:700}
+  .verdict.faithful{background:#E3F4EA;color:var(--ok)} .verdict.minor{background:#FFF1D6;color:var(--amber)} .verdict.needs_fixes{background:#FDECEA;color:var(--red)}
+  .fd{border-top:1px solid var(--line);padding:10px 0;font-size:13.5px}
+  .fd .ty{font-size:11px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;color:var(--amber)}
+  .fd q{display:block;color:var(--muted);font-size:12.5px;quotes:none;margin-top:3px}
+  .fd q:before{content:attr(data-l) ": ";font-weight:600}
+  #cx .foot{padding:10px 18px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+
+  /* sign-in gate */
+  #gate{position:fixed;inset:0;z-index:50;background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 60%,#1F4F5C 100%);display:none;align-items:center;justify-content:center;padding:20px}
+  #gate.on{display:flex}
+  #gate .box{background:#fff;border-radius:16px;padding:28px 26px;width:min(400px,100%);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  #gate img{height:34px;display:block;margin-bottom:14px}
+  #gate h2{margin:0 0 4px;font-size:19px;color:var(--navy)}
+  #gate p{margin:0 0 14px;font-size:13.5px;color:var(--muted)}
+  #gate input{margin-bottom:10px}
+  #gate .go{width:100%;justify-content:center}
+  #gate .dots{display:flex;gap:6px;margin-bottom:14px}
+  #gate .dots i{height:4px;flex:1;border-radius:2px;background:var(--line)}
+  #gate .dots i.on{background:var(--teal)}
+</style>
+</head>
+<body>
+<div id="gate" role="dialog" aria-modal="true" aria-label="Sign in">
+  <div class="box">
+    <img src="/orikami-logo.png" alt="Orikami">
+    <div id="gPw">
+      <h2>Welcome</h2>
+      <p>Enter the team password to continue.</p>
+      <input type="password" id="gPwIn" placeholder="Team password" aria-label="Team password" autocomplete="off">
+      <div id="gPwErr" class="alert" role="alert" style="margin-bottom:10px"></div>
+      <button class="go" id="gPwGo" onclick="gatePw()"><span class="spin"></span><span>Continue</span></button>
+    </div>
+  </div>
+</div>
+<header>
+  <div class="wrap hdr">
+    <div>
+      <h1>CV Redesigner</h1>
+      <p>Turn a resume into your reference CV format, matched to a job description, with an honest self-assessment. Nothing is added that isn't already in the resume.</p>
+    </div>
+    <button class="toplink" onclick="openCx(false)">Cross-check</button>
+  </div>
+</header>
+<main>
+  <div class="card" style="margin-bottom:16px;flex-direction:row;flex-wrap:wrap;gap:12px;align-items:center">
+    <div style="flex:1 1 260px"><h2 style="margin:0">Your Claude API key</h2>
+      <p class="sub" style="margin:2px 0 0">Used only for your requests. It stays in this tab and is never saved on the server. Closing the tab forgets it.</p></div>
+    <input type="password" id="ckey" placeholder="sk-ant-…" autocomplete="off" spellcheck="false" aria-label="Claude API key" style="flex:1 1 280px;max-width:420px">
+  </div>
+  <div class="grid">
+    <!-- 1 GOAL -->
+    <div class="card">
+      <h2><span class="num">1</span>Goal format</h2>
+      <p class="sub">The design the CV is rebuilt into.</p>
+      <div id="goalDefault"><span class="pill">✓ Using the built-in reference format</span><br>
+        <button class="link" onclick="toggleGoal(true)">Use a different goal file instead</button></div>
+      <div id="goalCustom" style="display:none">
+        <label class="drop" id="goalDrop"><input type="file" id="goalFile" accept=".docx,.pdf,.txt"><span class="ico">📄</span><span id="goalLbl">Click or drop a goal file<br><small>.docx, .pdf, .txt</small></span></label>
+        <p class="sub" style="margin-top:10px">Section order and headings are copied from this file. A .docx also supplies the main colour.</p>
+        <button class="link" onclick="toggleGoal(false)">Back to the built-in format</button>
+      </div>
+    </div>
+    <!-- 2 JD -->
+    <div class="card">
+      <h2><span class="num">2</span>Job description</h2>
+      <p class="sub">Paste the text or upload a file.</p>
+      <div class="tabs"><button class="on" id="jdT1" onclick="jdTab(1)">Paste text</button><button id="jdT2" onclick="jdTab(2)">Upload file</button></div>
+      <textarea id="jdText" placeholder="Paste the full job description here…"></textarea>
+      <label class="drop" id="jdDrop" style="display:none"><input type="file" id="jdFile" accept=".docx,.pdf,.txt"><span class="ico">📎</span><span id="jdLbl">Click or drop the JD<br><small>.pdf, .docx, .txt</small></span></label>
+    </div>
+    <!-- 3 RESUME -->
+    <div class="card">
+      <h2><span class="num">3</span>Candidate resume</h2>
+      <p class="sub">The CV to redesign.</p>
+      <label class="drop" id="resDrop"><input type="file" id="resFile" accept=".docx,.pdf,.txt"><span class="ico">📎</span><span id="resLbl">Click or drop the resume<br><small>.pdf, .docx, .txt</small></span></label>
+      <details style="margin-top:12px"><summary>…or paste the resume text instead</summary><textarea id="resText" style="margin-top:8px" placeholder="Paste resume text"></textarea></details>
+    </div>
+  </div>
+
+  <div class="bar" id="runBar">
+    <button class="go" id="go" onclick="run()"><span class="spin"></span><span id="goLbl">Redesign CV</span></button>
+    <span id="status" class="note"></span>
+    <span style="flex:1"></span>
+    <input type="hidden" id="pw">
+    <div id="err" class="alert" role="alert"></div>
+  </div>
+
+  <section id="review">
+    <h3>Review before you download</h3>
+    <div class="flags" id="flags"></div>
+
+    <h3>Self Assessment <small>Edit any rating or evidence line. Changes are kept in the download.</small></h3>
+    <div class="bar" style="margin:6px 0 10px">
+      <button class="alt" id="resetBtn" onclick="resetRatings()" disabled>↺ Reset ratings to original</button>
+      <span id="editNote" class="note"></span>
+    </div>
+    <div class="tbl"><table><thead><tr><th>JD Parameter</th><th style="text-align:center">Rating</th><th>Evidence</th></tr></thead><tbody id="rows"></tbody></table></div>
+
+    <h3>Rest of the CV</h3>
+    <div class="doc" id="doc"></div>
+    <div class="bar">
+      <button class="go" id="dl" onclick="download()"><span class="spin"></span><span>Download .docx</span></button>
+      <button class="alt" id="regen" onclick="regen()">Regenerate</button>
+      <button class="link" onclick="openCx(true)">Cross-check this result</button>
+      <span id="used" class="note"></span>
+      <div id="err2" class="alert" role="alert"></div>
+    </div>
+  </section>
+</main>
+<div id="cxShade" onclick="closeCx()"></div>
+<aside id="cx" aria-label="Cross-check" aria-hidden="true">
+  <div class="top"><b>Cross-check</b><button class="x" onclick="closeCx()" aria-label="Close">×</button></div>
+  <div class="body">
+    <p class="sub" style="margin:0">Is the redesigned CV a fair reformat of the original, without overstating or undervaluing anything?</p>
+    <label class="f">Original resume <button class="link" onclick="$('cxOF').click()">upload file</button></label>
+    <textarea id="cxO" placeholder="Paste text…"></textarea><input type="file" id="cxOF" accept=".docx,.pdf,.txt" hidden><div class="fn" id="cxOn"></div>
+    <label class="f">Redesigned CV <button class="link" onclick="$('cxRF').click()">upload file</button></label>
+    <textarea id="cxR" placeholder="Paste text…"></textarea><input type="file" id="cxRF" accept=".docx,.pdf,.txt" hidden><div class="fn" id="cxRn"></div>
+    <label class="f">Job description <button class="link" onclick="$('cxJF').click()">upload file</button></label>
+    <textarea id="cxJ" placeholder="Paste text…"></textarea><input type="file" id="cxJF" accept=".docx,.pdf,.txt" hidden><div class="fn" id="cxJn"></div>
+    <div class="bar" style="margin:14px 0 0"><button class="go" id="cxGo" onclick="runCx()"><span class="spin"></span><span>Run check</span></button><span id="cxSt" class="note"></span></div>
+    <div id="cxErr" class="alert" role="alert" style="margin-top:10px"></div>
+    <div class="res" id="cxRes"></div>
+  </div>
+  <div class="foot">Prefer another AI? <button class="link" onclick="copyPrompt()" id="cxCp">Copy the checking prompt</button>, then paste it with the three documents into
+    <a class="link" href="https://chatgpt.com" target="_blank" rel="noopener">ChatGPT</a>, <a class="link" href="https://gemini.google.com" target="_blank" rel="noopener">Gemini</a> or <a class="link" href="https://claude.ai" target="_blank" rel="noopener">Claude</a>.</div>
+</aside>
+<footer>Your files are processed for this session only and are not stored.</footer>
+
+<script>
+let DATA=null, THEME={}, ORIG=[], useGoal=false, confirmRegen=false;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const stars=r=>"★".repeat(Math.floor(r))+"☆".repeat(5-Math.floor(r));
+const showErr=(id,msg,warn)=>{const e=$(id);e.textContent=msg||"";e.classList.toggle("show",!!msg);e.classList.toggle("warn",!!warn)};
+
+function toggleGoal(on){useGoal=on;$("goalDefault").style.display=on?"none":"block";$("goalCustom").style.display=on?"block":"none"}
+function jdTab(n){$("jdT1").classList.toggle("on",n==1);$("jdT2").classList.toggle("on",n==2);$("jdText").style.display=n==1?"block":"none";$("jdDrop").style.display=n==2?"block":"none"}
+function bindDrop(inp,drop,lbl){
+  const el=$(drop);
+  const show=f=>{el.classList.toggle("has",!!f);if(f)$(lbl).innerHTML="✓ "+esc(f.name)};
+  $(inp).onchange=e=>show(e.target.files[0]);
+  ["dragenter","dragover"].forEach(t=>el.addEventListener(t,e=>{e.preventDefault();el.classList.add("over")}));
+  ["dragleave","drop"].forEach(t=>el.addEventListener(t,e=>{e.preventDefault();el.classList.remove("over")}));
+  el.addEventListener("drop",e=>{const f=e.dataTransfer.files[0];if(f){$(inp).files=e.dataTransfer.files;show(f)}});
+}
+bindDrop("goalFile","goalDrop","goalLbl");bindDrop("jdFile","jdDrop","jdLbl");bindDrop("resFile","resDrop","resLbl");
+try{$("ckey").value=sessionStorage.getItem("ckey")||""}catch{}
+$("ckey").addEventListener("input",()=>{try{sessionStorage.setItem("ckey",$("ckey").value.trim())}catch{}});
+
+function setBusy(b,text){
+  $("go").disabled=b;$("regen").disabled=b;
+  $("runBar").classList.toggle("busy",b);
+  $("goLbl").textContent=b?"Working…":"Redesign CV";
+  $("status").textContent=text||"";
+}
+
+async function run(){
+  showErr("err","");showErr("err2","");
+  const jdFileOk=$("jdFile").files[0], resFileOk=$("resFile").files[0];
+  if(!$("jdText").value.trim()&&!jdFileOk)return showErr("err","Please add the job description first. Paste it in or upload a file.");
+  if(!$("resText").value.trim()&&!resFileOk)return showErr("err","Please add the candidate's resume first. Upload a file or paste the text.");
+  const fd=new FormData();
+  if(useGoal&&$("goalFile").files[0])fd.append("goal",$("goalFile").files[0]);
+  if($("jdText").value.trim())fd.append("jdText",$("jdText").value);
+  if(jdFileOk)fd.append("jd",jdFileOk);
+  if(resFileOk)fd.append("resume",resFileOk);
+  if($("resText").value.trim())fd.append("resumeText",$("resText").value);
+  setBusy(true,"Reading the resume and rating it against the job description. This usually takes about a minute.");
+  try{
+    let r;
+    try{r=await fetch("/api/analyze",{method:"POST",body:fd,headers:{"x-app-password":$("pw").value,"x-claude-key":$("ckey").value.trim()}})}
+    catch{throw new Error("I couldn't reach the app. Please check that it's still running and your internet connection, then try again.")}
+    let j=null;try{j=await r.json()}catch{}
+    if(r.status===401){$("pw").value="";store.set("pw","");showGate()}
+    if(!r.ok)throw new Error((j&&j.error)||"Something went wrong on our side. Please try again in a moment.");
+    DATA=j.data;THEME=j.theme||{};ORIG=DATA.parameters.map(p=>p.rating);
+    render(j.usedGoal);
+    $("review").style.display="block";$("review").scrollIntoView({behavior:"smooth"});
+  }catch(e){showErr("err",e.message)}
+  setBusy(false,"");
+}
+
+// Regenerating throws away manual edits and may rate differently, so confirm when edits exist.
+function regen(){
+  if(DATA&&hasEdits()&&!confirmRegen){
+    confirmRegen=true;$("regen").textContent="Yes, discard my edits and regenerate";
+    showErr("err2","Regenerating asks Claude again, so the ratings may come out differently and your edits will be lost. Click the button again to confirm.",true);
+    return;
+  }
+  confirmRegen=false;$("regen").textContent="Regenerate";showErr("err2","");run();
+}
+function hasEdits(){return DATA.parameters.some((p,i)=>p.rating!==ORIG[i])}
+
+function render(used){
+  $("used").textContent="Format: "+used;
+  $("flags").innerHTML=(DATA.flags||[]).map(f=>`<div class="f ${esc(f.severity)}"><b>${esc(f.severity)}</b>${esc(f.text)}</div>`).join("")||'<div class="f info"><b>info</b>Nothing to flag.</div>';
+  $("rows").innerHTML=DATA.parameters.map((p,i)=>`<tr id="tr${i}">
+    <td class="p">${esc(p.param)}</td>
+    <td class="r"><span class="st" id="st${i}"></span>
+      <select id="sel${i}" aria-label="Rating for ${esc(p.param)}" onchange="setR(${i},this.value)">${[1,1.5,2,2.5,3,3.5,4,4.5,5].map(v=>`<option value="${v}">${v.toFixed(1)}</option>`).join("")}</select>
+      <span class="chg" id="chg${i}"></span></td>
+    <td><textarea aria-label="Evidence for ${esc(p.param)}" oninput="DATA.parameters[${i}].evidence=this.value">${esc(p.evidence)}</textarea></td></tr>`).join("");
+  DATA.parameters.forEach((_,i)=>paintRow(i));
+  paintReset();
+  $("doc").innerHTML=`<div><b>${esc(DATA.name)}</b> — ${esc(DATA.headline)}</div><h4>Professional Summary</h4><p>${esc(DATA.summary)}</p>`+
+    DATA.sections.map(s=>`<h4>${esc(s.heading)}</h4>`+s.entries.map(e=>`${e.title?`<div class="t">${esc(e.title)}</div>`:""}${e.meta?`<div class="m">${esc(e.meta)}</div>`:""}<ul>${(e.bullets||[]).map(b=>`<li>${esc(b)}</li>`).join("")}</ul>`).join("")).join("");
+}
+function paintRow(i){
+  const p=DATA.parameters[i], edited=p.rating!==ORIG[i];
+  $("st"+i).textContent=stars(p.rating);
+  $("sel"+i).value=String(p.rating);
+  $("tr"+i).classList.toggle("edited",edited);
+  $("chg"+i).textContent=edited?`edited (was ${ORIG[i].toFixed(1)})`:"";
+}
+function paintReset(){
+  const n=DATA.parameters.filter((p,i)=>p.rating!==ORIG[i]).length;
+  $("resetBtn").disabled=!n;
+  $("editNote").textContent=n?`${n} rating${n>1?"s":""} changed by hand.`:"Ratings are as Claude gave them.";
+}
+function setR(i,v){DATA.parameters[i].rating=parseFloat(v);paintRow(i);paintReset()}
+function resetRatings(){DATA.parameters.forEach((p,i)=>{p.rating=ORIG[i];paintRow(i)});paintReset()}
+
+async function download(){
+  showErr("err2","");
+  $("dl").disabled=true;$("dl").classList.add("busy");
+  try{
+    let r;
+    try{r=await fetch("/api/build",{method:"POST",headers:{"Content-Type":"application/json","x-app-password":$("pw").value},body:JSON.stringify({data:DATA,theme:THEME})})}
+    catch{throw new Error("I couldn't reach the app to build the file. Please check it's still running and try again.")}
+    if(!r.ok){let j=null;try{j=await r.json()}catch{} throw new Error((j&&j.error)||"I couldn't build the Word file just now. Please try again.")}
+    const b=await r.blob();const a=document.createElement("a");a.href=URL.createObjectURL(b);
+    a.download=(r.headers.get("Content-Disposition")||"").match(/filename="(.+)"/)?.[1]||"CV.docx";document.body.appendChild(a);a.click();a.remove();
+  }catch(e){showErr("err2",e.message)}
+  $("dl").disabled=false;$("dl").classList.remove("busy");
+}
+
+// ---- Cross-check panel ----
+const cxPairs=[["cxO","cxOF","cxOn"],["cxR","cxRF","cxRn"],["cxJ","cxJF","cxJn"]];
+cxPairs.forEach(([t,f,n])=>{$(f).onchange=()=>{const x=$(f).files[0];$(n).textContent=x?"✓ "+x.name:"";if(x)$(t).value=""};$(t).addEventListener("input",()=>{if($(t).value){$(f).value="";$(n).textContent=""}})});
+function cvText(d){
+  const L=[d.name+" - "+(d.headline||""),"","PROFESSIONAL SUMMARY",d.summary||""];
+  (d.sections||[]).forEach(s=>{L.push("","## "+s.heading);(s.entries||[]).forEach(e=>{if(e.title)L.push(e.title);if(e.meta)L.push(e.meta);(e.bullets||[]).forEach(b=>L.push("- "+b))})});
+  L.push("","SELF ASSESSMENT (rating out of 5 | JD parameter | evidence)");
+  (d.parameters||[]).forEach(p=>L.push(p.rating.toFixed(1)+" | "+p.param+" | "+p.evidence));
+  return L.join("\n");
+}
+function putFile(fid,nid,file){if(!file)return;const dt=new DataTransfer();dt.items.add(file);$(fid).files=dt.files;$(nid).textContent="✓ "+file.name}
+function openCx(prefill){
+  showErr("cxErr","");$("cxRes").innerHTML="";
+  if(prefill&&DATA){
+    cxPairs.forEach(([t,f,n])=>{$(t).value="";$(f).value="";$(n).textContent=""});
+    $("cxR").value=cvText(DATA);
+    if($("resText").value.trim())$("cxO").value=$("resText").value;else putFile("cxOF","cxOn",$("resFile").files[0]);
+    if($("jdText").value.trim())$("cxJ").value=$("jdText").value;else putFile("cxJF","cxJn",$("jdFile").files[0]);
+  }
+  $("cx").classList.add("on");$("cxShade").classList.add("on");$("cx").setAttribute("aria-hidden","false");
+}
+function closeCx(){$("cx").classList.remove("on");$("cxShade").classList.remove("on");$("cx").setAttribute("aria-hidden","true")}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeCx()});
+const TYPES={exaggerated:"Overstated",undervalued:"Undervalued",invented:"Not in the original",missing:"Left out",rating:"Rating"};
+const VERDICTS={faithful:"Faithful",minor:"Minor issues",needs_fixes:"Needs fixes"};
+async function runCx(){
+  showErr("cxErr","");$("cxRes").innerHTML="";
+  const fd=new FormData();const map=[["cxO","cxOF","originalText","original"],["cxR","cxRF","redesignedText","redesigned"],["cxJ","cxJF","jdText","jd"]];
+  const names=["the original resume","the redesigned CV","the job description"];
+  for(let i=0;i<3;i++){const [t,f,tk,fk]=map[i];const v=$(t).value.trim(),fl=$(f).files[0];
+    if(!v&&!fl)return showErr("cxErr","Please add "+names[i]+" first. Paste it in or upload a file.");
+    if(v)fd.append(tk,v);else fd.append(fk,fl)}
+  $("cxGo").disabled=true;$("cxGo").classList.add("busy");$("cxSt").textContent="Checking…";
+  try{
+    let r;try{r=await fetch("/api/crosscheck",{method:"POST",body:fd,headers:{"x-app-password":$("pw").value,"x-claude-key":$("ckey").value.trim()}})}
+    catch{throw new Error("I couldn't reach the app. Please check that it's still running, then try again.")}
+    let j=null;try{j=await r.json()}catch{}
+    if(r.status===401){$("pw").value="";store.set("pw","");showGate()}
+    if(!r.ok)throw new Error((j&&j.error)||"Something went wrong. Please try again in a moment.");
+    $("cxRes").innerHTML=`<span class="verdict ${esc(j.verdict)}">${esc(VERDICTS[j.verdict]||j.verdict)}</span><p style="margin:8px 0 4px">${esc(j.summary)}</p>`+
+      (j.findings||[]).map(x=>`<div class="fd"><span class="ty">${esc(TYPES[x.type]||x.type)}</span><div>${esc(x.note)}</div>${x.original?`<q data-l="Original">${esc(x.original)}</q>`:""}${x.redesigned?`<q data-l="Redesigned">${esc(x.redesigned)}</q>`:""}${x.fix?`<div style="margin-top:4px"><b>Suggested:</b> ${esc(x.fix)}</div>`:""}</div>`).join("");
+  }catch(e){showErr("cxErr",e.message)}
+  $("cxGo").disabled=false;$("cxGo").classList.remove("busy");$("cxSt").textContent="";
+}
+const CX_PROMPT=`I am attaching three documents: (1) an ORIGINAL resume, (2) a REDESIGNED version of it that includes a self-assessment table of job-description parameters with star ratings and evidence, and (3) the job description (JD).
+
+Tell me whether the redesigned CV is a faithful reformat of the original, without exaggerating or undervaluing any of the applicant's skills. The original is the only source of facts; the JD is only the yardstick for relevance.
+
+Check for: overstated skills, claims or ratings; things the original clearly proves that are rated too low or played down; anything invented (skills, tools, employers, dates, numbers); important items that were dropped; and star ratings that their own evidence line does not support (ratings are subjective, so flag only clear mismatches of about a full star or more). Rewording and reordering are fine; ignore style.
+
+Reply with: a one-line verdict (Faithful / Minor issues / Needs fixes), then a short list of specific findings, each quoting the original line and the redesigned line with a one-line suggested fix. Be sparing: no nitpicks. If it is faithful, just say so.`;
+async function copyPrompt(){
+  const ok=()=>{$("cxCp").textContent="Copied ✓"};
+  try{await navigator.clipboard.writeText(CX_PROMPT);ok()}
+  catch{const t=document.createElement("textarea");t.value=CX_PROMPT;document.body.appendChild(t);t.select();try{document.execCommand("copy");ok()}catch{$("cxCp").textContent="Copy failed"}t.remove()}
+  setTimeout(()=>$("cxCp").textContent="Copy the checking prompt",2500);
+}
+
+// ---- Password gate (shown only when the server has APP_PASSWORD set) ----
+let CFG={needsPassword:false};
+const store={get:k=>{try{return sessionStorage.getItem(k)||""}catch{return ""}},set:(k,v)=>{try{sessionStorage.setItem(k,v)}catch{}}};
+function gateNext(){
+  if(CFG.needsPassword&&!$("pw").value){$("gate").classList.add("on");setTimeout(()=>$("gPwIn").focus(),50)}
+  else $("gate").classList.remove("on");
+}
+function showGate(){$("gate").classList.add("on");setTimeout(()=>$("gPwIn").focus(),50)}
+async function gatePw(){
+  showErr("gPwErr","");const v=$("gPwIn").value;
+  if(!v)return showErr("gPwErr","Please type the team password.");
+  $("gPwGo").disabled=true;
+  try{
+    const r=await fetch("/api/verify",{headers:{"x-app-password":v}});
+    if(r.status===401){showErr("gPwErr","That password doesn't look right. Please check it and try again.");$("gPwIn").select()}
+    else if(!r.ok)showErr("gPwErr","Something went wrong. Please try again in a moment.");
+    else{$("pw").value=v;store.set("pw",v);gateNext()}
+  }catch{showErr("gPwErr","I couldn't reach the app. Please check that it's still running, then try again.")}
+  $("gPwGo").disabled=false;
+}
+$("gPwIn").addEventListener("keydown",e=>{if(e.key==="Enter")gatePw()});
+(async()=>{
+  try{CFG=await (await fetch("/api/config")).json()}catch{}
+  $("pw").value=store.get("pw");
+  if(CFG.needsPassword&&$("pw").value){ // remembered for this tab: confirm it still works
+    try{const r=await fetch("/api/verify",{headers:{"x-app-password":$("pw").value}});if(r.status===401)$("pw").value=""}catch{}
+  }
+  gateNext();
+})();
+</script>
+</body>
+</html>
