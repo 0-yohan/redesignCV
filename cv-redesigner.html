@@ -1,0 +1,884 @@
+<title>CV Redesigner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Spectral:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a two-step desk — three intake cards in a row, then a review sheet that mirrors the Word CV's own navy/teal/gold. */
+:root {
+  --bg: #f3f5f8;
+  --surface: #ffffff;
+  --surface-2: #eaeef4;
+  --ink: #142033;
+  --ink-2: #4a586c;
+  --line: #d3dae4;
+  --navy: #0f1e33;
+  --teal: #1f6f6b;
+  --teal-soft: #dcefed;
+  --gold: #c98a22;
+  --on-navy: #ffffff;
+  --high: #b3261e; --high-bg: #fbe9e7;
+  --med: #8a5a00; --med-bg: #fdf3dc;
+  --info: #1f5a8a; --info-bg: #e5eff8;
+  --ok: #1f6f3b;
+  --focus: #2a7fd4;
+  --f-display: "Spectral", Georgia, "Times New Roman", serif;
+  --f-body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --r: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d141f; --surface: #152031; --surface-2: #1c2a3f; --ink: #e6ecf4; --ink-2: #a5b2c4; --line: #2c3c54;
+    --navy: #9fc3ff; --teal: #6cc9c1; --teal-soft: #173a3a; --gold: #f0b555; --on-navy: #0d141f;
+    --high: #ff8a80; --high-bg: #3a1a1a; --med: #f3c26b; --med-bg: #332810; --info: #8cc2f0; --info-bg: #14283d; --ok: #7fd49a; --focus: #7cb8ff;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d141f; --surface: #152031; --surface-2: #1c2a3f; --ink: #e6ecf4; --ink-2: #a5b2c4; --line: #2c3c54;
+  --navy: #9fc3ff; --teal: #6cc9c1; --teal-soft: #173a3a; --gold: #f0b555; --on-navy: #0d141f;
+  --high: #ff8a80; --high-bg: #3a1a1a; --med: #f3c26b; --med-bg: #332810; --info: #8cc2f0; --info-bg: #14283d; --ok: #7fd49a; --focus: #7cb8ff;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; display: grid; gap: 28px; }
+@media (max-width: 480px) { .wrap { padding-inline: 16px; } }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; color: var(--ink); }
+h1 { font-size: 1.9rem; font-weight: 600; letter-spacing: -0.01em; }
+h2 { font-size: 1.35rem; font-weight: 600; }
+h3 { font-size: 1.05rem; font-weight: 600; }
+p { margin: 0; }
+.muted { color: var(--ink-2); }
+.small { font-size: 0.85rem; }
+.label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; color: var(--ink-2); }
+button, select, input, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+header.top { display: grid; gap: 6px; }
+header.top .rule { height: 6px; width: 72px; background: var(--teal); border-radius: 3px; }
+header.top p { max-width: 70ch; }
+
+.step-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.step-no { font-family: var(--f-mono); font-size: 0.8rem; color: var(--teal); font-weight: 500; }
+
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 900px) { .cards { grid-template-columns: 1fr; } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.status { font-size: 0.88rem; color: var(--ok); font-weight: 500; }
+.status.warn { color: var(--high); }
+.linkbtn { background: none; border: 0; padding: 0; color: var(--teal); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; font-size: 0.9rem; }
+.linkbtn:hover { color: var(--ink); }
+
+.tabs { display: inline-flex; background: var(--surface-2); border-radius: 6px; padding: 3px; gap: 2px; align-self: flex-start; }
+.tabs button { border: 0; background: transparent; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 0.86rem; color: var(--ink-2); }
+.tabs button[aria-selected="true"] { background: var(--surface); color: var(--ink); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+textarea { width: 100%; min-height: 150px; resize: vertical; border: 1px solid var(--line); border-radius: 6px; padding: 10px; background: var(--surface); font-size: 0.9rem; line-height: 1.45; }
+.drop { border: 1.5px dashed var(--line); border-radius: 6px; padding: 22px 14px; text-align: center; display: grid; gap: 6px; justify-items: center; cursor: pointer; background: var(--surface-2); transition: border-color .15s, background .15s; }
+.drop.over { border-color: var(--teal); background: var(--teal-soft); }
+.drop strong { font-weight: 600; }
+.file-chip { display: flex; align-items: center; gap: 8px; font-size: 0.86rem; background: var(--teal-soft); border-radius: 6px; padding: 6px 10px; min-width: 0; }
+.file-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1; }
+.err { color: var(--high); font-size: 0.86rem; }
+.swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; border: 1px solid var(--line); }
+.heads { font-size: 0.82rem; color: var(--ink-2); }
+
+.actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.btn { border: 1px solid var(--line); background: var(--surface); padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95rem; }
+.btn:hover:not(:disabled) { border-color: var(--ink-2); }
+.btn.primary { background: var(--teal); border-color: var(--teal); color: #fff; }
+:root[data-theme="dark"] .btn.primary { color: #0d141f; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn.primary { color: #0d141f; } }
+.btn.primary:hover:not(:disabled) { filter: brightness(1.08); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.progress { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 8px; }
+.progress .tail { font-family: var(--f-mono); font-size: 0.76rem; color: var(--ink-2); white-space: pre-wrap; word-break: break-word; max-height: 7.5em; overflow: hidden; }
+.pulse { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--teal); margin-right: 8px; animation: pulse 1.2s infinite ease-in-out; }
+@keyframes pulse { 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { .pulse { animation: none; } }
+
+.review { display: grid; gap: 20px; }
+.example-note { background: var(--info-bg); color: var(--info); border-radius: 6px; padding: 10px 14px; font-size: 0.9rem; }
+.two { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 16px; }
+@media (max-width: 900px) { .two { grid-template-columns: 1fr; } }
+.flags { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.flag { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; padding: 9px 12px; border-radius: 6px; font-size: 0.9rem; }
+.flag .sev { font-family: var(--f-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: .06em; padding: 2px 7px; border-radius: 4px; font-weight: 500; margin-top: 2px; }
+.flag.high { background: var(--high-bg); } .flag.high .sev { background: var(--high); color: var(--high-bg); }
+.flag.medium { background: var(--med-bg); } .flag.medium .sev { background: var(--med); color: var(--med-bg); }
+.flag.info { background: var(--info-bg); } .flag.info .sev { background: var(--info); color: var(--info-bg); }
+.qbox { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; display: grid; gap: 10px; align-content: start; }
+.qbox ol { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; font-size: 0.92rem; }
+.qbox textarea { min-height: 90px; }
+
+.field { display: grid; gap: 4px; }
+.field input { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; background: var(--surface); width: 100%; }
+.field textarea { min-height: 96px; }
+.hdr-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 12px; }
+@media (max-width: 700px) { .hdr-fields { grid-template-columns: 1fr; } }
+
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+table.assess { width: 100%; border-collapse: collapse; min-width: 680px; font-size: 0.9rem; }
+table.assess th { background: var(--navy); color: var(--on-navy); text-align: left; font-weight: 600; padding: 9px 10px; font-size: 0.82rem; }
+table.assess td { border-top: 1px solid var(--line); padding: 8px 10px; vertical-align: top; }
+table.assess td.param { font-weight: 600; width: 30%; }
+table.assess td.param textarea { width: 100%; min-height: 0; resize: none; border: 1px solid transparent; background: transparent; font-weight: 600; padding: 4px 6px; border-radius: 4px; font-size: 0.9rem; }
+table.assess td.param textarea:hover, table.assess td.param textarea:focus { border-color: var(--line); background: var(--surface); }
+table.assess td.rate { width: 150px; text-align: center; }
+table.assess td.rate select { border: 1px solid var(--line); border-radius: 4px; padding: 3px 6px; background: var(--surface); font-family: var(--f-mono); font-size: 0.85rem; }
+.stars { color: var(--gold); letter-spacing: 1px; font-size: 1.05rem; display: block; margin-bottom: 4px; }
+table.assess td.ev textarea { min-height: 64px; font-size: 0.86rem; }
+table.assess td.del { width: 36px; text-align: center; }
+.x { border: 0; background: none; color: var(--ink-2); cursor: pointer; font-size: 1.1rem; padding: 4px; }
+.x:hover { color: var(--high); }
+
+.preview { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 22px 24px; display: grid; gap: 4px; }
+.preview .sec { font-family: var(--f-body); font-weight: 700; color: var(--navy); border-bottom: 2px solid var(--navy); padding-bottom: 3px; margin-top: 16px; margin-bottom: 6px; font-size: 1rem; }
+.preview .sec:first-child { margin-top: 0; }
+.preview .et { font-weight: 700; color: var(--navy); margin-top: 8px; }
+.preview .em { font-style: italic; color: var(--teal); font-size: 0.88rem; margin-bottom: 2px; }
+.preview ul { margin: 2px 0 4px; padding-left: 1.2em; font-size: 0.9rem; display: grid; gap: 2px; }
+.dl-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.toast { font-size: 0.9rem; }
+.toast.good { color: var(--ok); } .toast.bad { color: var(--high); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="rule" aria-hidden="true"></div>
+    <h1>CV Redesigner</h1>
+    <p class="muted">Turn a candidate's resume into a Word CV in your house format, with a star-rated Self Assessment against the job description. Claude only rewords what the resume already says; you review every rating and flag before you download.</p>
+  </header>
+
+  <section aria-labelledby="s1" style="display:grid;gap:16px">
+    <div class="step-head"><span class="step-no">STEP 1</span><h2 id="s1">Inputs</h2></div>
+    <div class="cards">
+      <!-- Goal format -->
+      <div class="card" id="goalCard">
+        <div class="card-head"><h3>Goal format</h3><span class="label">Optional</span></div>
+        <div id="goalBuiltin">
+          <p class="status">Using the built-in reference format ✓</p>
+          <p class="small muted" style="margin-top:6px">Navy header band, Professional Summary, Self Assessment table, then Experience, Projects, Education, Certifications.</p>
+          <p style="margin-top:10px"><button class="linkbtn" id="goalUploadLink" type="button">Upload a different goal file</button> <span class="small muted">(.docx, .pdf, .txt)</span></p>
+        </div>
+        <div id="goalCustom" hidden>
+          <div class="file-chip"><span id="goalName"></span></div>
+          <p class="heads" id="goalHeads"></p>
+          <p class="small" id="goalColour"></p>
+          <p><button class="linkbtn" id="goalReset" type="button">Back to the built-in format</button></p>
+        </div>
+        <p class="err" id="goalErr" hidden></p>
+        <input type="file" id="goalFile" accept=".docx,.pdf,.txt" hidden>
+      </div>
+
+      <!-- JD -->
+      <div class="card">
+        <div class="card-head"><h3>Job description</h3><span class="label">Required</span></div>
+        <div class="tabs" role="tablist" aria-label="Job description input">
+          <button type="button" role="tab" id="jdTabPaste" aria-selected="true">Paste text</button>
+          <button type="button" role="tab" id="jdTabFile" aria-selected="false">Upload file</button>
+        </div>
+        <div id="jdPastePane"><label class="sr" for="jdText">Job description text</label><textarea id="jdText" placeholder="Paste the full job description, including responsibilities, key areas and required years of experience."></textarea></div>
+        <div id="jdFilePane" hidden>
+          <div class="drop" id="jdDrop" tabindex="0" role="button" aria-label="Upload job description file"><strong>Drop the JD here</strong><span class="small muted">or click to choose · PDF, DOCX, TXT</span></div>
+          <input type="file" id="jdFile" accept=".pdf,.docx,.txt" hidden>
+          <div class="file-chip" id="jdChip" hidden><span id="jdChipName"></span><button class="x" id="jdClear" type="button" aria-label="Remove file">×</button></div>
+        </div>
+        <p class="err" id="jdErr" hidden></p>
+      </div>
+
+      <!-- Resume -->
+      <div class="card">
+        <div class="card-head"><h3>Candidate resume</h3><span class="label">Required</span></div>
+        <div class="drop" id="cvDrop" tabindex="0" role="button" aria-label="Upload resume file"><strong>Drop the resume here</strong><span class="small muted">or click to choose · PDF, DOCX, TXT</span></div>
+        <input type="file" id="cvFile" accept=".pdf,.docx,.txt" hidden>
+        <div class="file-chip" id="cvChip" hidden><span id="cvChipName"></span><button class="x" id="cvClear" type="button" aria-label="Remove file">×</button></div>
+        <p><button class="linkbtn" id="cvPasteToggle" type="button">or paste text</button></p>
+        <div id="cvPastePane" hidden><label class="sr" for="cvText">Resume text</label><textarea id="cvText" placeholder="Paste the resume text."></textarea></div>
+        <p class="err" id="cvErr" hidden></p>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" id="runBtn" type="button">Redesign CV</button>
+      <button class="btn" id="cancelBtn" type="button" hidden>Cancel</button>
+      <span class="small muted" id="runHint">Add a job description and a resume to start.</span>
+    </div>
+    <div class="progress" id="progress" hidden aria-live="polite">
+      <div><span class="pulse" aria-hidden="true"></span><span id="progMsg">Thinking…</span></div>
+      <div class="tail" id="progTail"></div>
+    </div>
+    <p class="err" id="runErr" hidden></p>
+  </section>
+
+  <section aria-labelledby="s2" class="review" id="review">
+    <div class="step-head"><span class="step-no">STEP 2</span><h2 id="s2">Review before download</h2></div>
+    <p class="example-note" id="exampleNote">Example output for a fictional candidate, so you can see the review step. Run <strong>Redesign CV</strong> to replace it with your candidate.</p>
+
+    <div class="two">
+      <div style="display:grid;gap:10px;align-content:start;min-width:0">
+        <h3>Flags</h3>
+        <ul class="flags" id="flags"></ul>
+      </div>
+      <div class="qbox">
+        <h3>Questions for you</h3>
+        <ol id="questions"></ol>
+        <label class="field"><span class="label">Your answers (used on Regenerate)</span>
+          <textarea id="answers" placeholder="e.g. The Acme role ended in March 2024. The candidate holds the AZ-104 certificate (confirmed by phone)."></textarea></label>
+      </div>
+    </div>
+
+    <div class="hdr-fields">
+      <label class="field"><span class="label">Name</span><input id="fName" type="text"></label>
+      <label class="field"><span class="label">Headline</span><input id="fHeadline" type="text"></label>
+    </div>
+    <label class="field"><span class="label">Professional Summary</span><textarea id="fSummary"></textarea></label>
+
+    <div style="display:grid;gap:8px">
+      <div class="step-head"><h3>Self Assessment</h3><span class="small muted" id="paramCount"></span></div>
+      <div class="tbl-wrap">
+        <table class="assess">
+          <thead><tr><th>JD Parameter</th><th style="text-align:center">Rating</th><th>Evidence</th><th><span class="sr">Remove</span></th></tr></thead>
+          <tbody id="assessBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="display:grid;gap:8px">
+      <h3>Rest of the CV</h3>
+      <div class="preview" id="preview"></div>
+    </div>
+
+    <div class="dl-row">
+      <button class="btn primary" id="dlBtn" type="button">Download .docx</button>
+      <button class="btn" id="regenBtn" type="button">Regenerate</button>
+      <span class="toast" id="dlMsg" aria-live="polite"></span>
+    </div>
+  </section>
+</div>
+
+<script>
+"use strict";
+const $ = (s) => document.querySelector(s);
+const LIBS = {
+  pdf: "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js",
+  pdfWorker: "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js",
+  mammoth: "https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js",
+  docx: "https://cdn.jsdelivr.net/npm/docx@9.5.1/dist/index.iife.js",
+  jszip: "https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js",
+};
+const loaded = {};
+function loadScript(url) {
+  if (!loaded[url]) loaded[url] = new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.src = url; s.onload = res;
+    s.onerror = () => { delete loaded[url]; rej(new Error("Could not load a library from the CDN. Check your connection and try again.")); };
+    document.head.appendChild(s);
+  });
+  return loaded[url];
+}
+
+/* ---------- file reading ---------- */
+let pdfReady = null;
+function getPdf() {
+  if (!pdfReady) pdfReady = (async () => {
+    await loadScript(LIBS.pdf);
+    const lib = window.pdfjsLib;
+    lib.GlobalWorkerOptions.workerSrc = LIBS.pdfWorker;
+    // Cross-origin workers are refused, so start a same-origin blob worker that importScripts the CDN worker.
+    try {
+      const blob = new Blob([`importScripts(${JSON.stringify(LIBS.pdfWorker)});`], { type: "text/javascript" });
+      lib.GlobalWorkerOptions.workerPort = new Worker(URL.createObjectURL(blob));
+    } catch (e) {
+      lib.GlobalWorkerOptions.workerPort = null;
+      await loadScript(LIBS.pdfWorker); // main-thread fallback (pdf.js uses window.pdfjsWorker)
+    }
+    return lib;
+  })();
+  return pdfReady;
+}
+async function pdfText(buf) {
+  const lib = await getPdf();
+  let doc;
+  try {
+    doc = await lib.getDocument({ data: new Uint8Array(buf), isEvalSupported: false }).promise;
+  } catch (e) {
+    if (lib.GlobalWorkerOptions.workerPort && !window.pdfjsWorker) {
+      // Blob worker failed: fall back to running the worker on the main thread.
+      lib.GlobalWorkerOptions.workerPort = null;
+      await loadScript(LIBS.pdfWorker);
+      doc = await lib.getDocument({ data: new Uint8Array(buf), isEvalSupported: false }).promise;
+    } else throw e;
+  }
+  const out = [];
+  for (let i = 1; i <= doc.numPages; i++) {
+    const page = await doc.getPage(i);
+    const tc = await page.getTextContent();
+    let line = "";
+    for (const it of tc.items) {
+      line += it.str;
+      if (it.hasEOL) { out.push(line); line = ""; } else if (it.str && !/\s$/.test(it.str)) line += " ";
+    }
+    if (line.trim()) out.push(line);
+    out.push("");
+  }
+  return out.join("\n").replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+async function readFileText(file) {
+  const name = file.name.toLowerCase();
+  const buf = await file.arrayBuffer();
+  let text;
+  if (name.endsWith(".pdf")) text = await pdfText(buf);
+  else if (name.endsWith(".docx")) { await loadScript(LIBS.mammoth); text = (await window.mammoth.extractRawText({ arrayBuffer: buf })).value; }
+  else if (name.endsWith(".txt")) text = new TextDecoder().decode(buf);
+  else throw new Error("That file type isn't supported. Use PDF, DOCX or TXT (save .doc files as .docx first).");
+  text = (text || "").replace(/\r/g, "").trim();
+  if (text.replace(/\s/g, "").length < 40) {
+    throw new Error(name.endsWith(".pdf")
+      ? "No text could be read from this PDF. It looks scanned (an image of a page). Upload the original DOCX, or paste the text."
+      : "This file has no readable text. Upload another file or paste the text.");
+  }
+  return { text, buf };
+}
+// Goal .docx: headings (via mammoth HTML) and the dominant non-white cell fill colour.
+async function goalDocxInfo(buf) {
+  await loadScript(LIBS.mammoth); await loadScript(LIBS.jszip);
+  const html = (await window.mammoth.convertToHtml({ arrayBuffer: buf.slice(0) })).value;
+  const d = document.createElement("div"); d.innerHTML = html;
+  const headings = [...d.querySelectorAll("h1,h2")].map((h) => h.textContent.trim()).filter(Boolean);
+  let primary = null;
+  try {
+    const zip = await window.JSZip.loadAsync(buf);
+    const xml = await zip.file("word/document.xml").async("string");
+    const counts = {};
+    for (const m of xml.matchAll(/<w:shd\b[^>]*w:fill="([0-9A-Fa-f]{6})"/g)) {
+      const c = m[1].toUpperCase();
+      if (c === "FFFFFF") continue;
+      counts[c] = (counts[c] || 0) + 1;
+    }
+    primary = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+  } catch (e) { primary = null; }
+  return { headings, primary };
+}
+
+/* ---------- state ---------- */
+const state = {
+  goal: { custom: false, name: "", text: "", headings: [], primary: null },
+  jd: { mode: "paste", fileText: "", fileName: "" },
+  cv: { fileText: "", fileName: "", paste: false },
+  result: null, isExample: true, ctl: null, busy: false, lastPromptInputs: null,
+};
+const jdText = () => (state.jd.mode === "file" ? state.jd.fileText : $("#jdText").value).trim();
+const cvText = () => (state.cv.fileText || $("#cvText").value).trim();
+function showErr(el, msg) { el.textContent = msg || ""; el.hidden = !msg; }
+
+/* ---------- inputs wiring ---------- */
+function wireDrop(dropEl, inputEl, onFile) {
+  dropEl.addEventListener("click", () => inputEl.click());
+  dropEl.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); inputEl.click(); } });
+  dropEl.addEventListener("dragover", (e) => { e.preventDefault(); dropEl.classList.add("over"); });
+  dropEl.addEventListener("dragleave", () => dropEl.classList.remove("over"));
+  dropEl.addEventListener("drop", (e) => { e.preventDefault(); dropEl.classList.remove("over"); if (e.dataTransfer.files[0]) onFile(e.dataTransfer.files[0]); });
+  inputEl.addEventListener("change", () => { if (inputEl.files[0]) onFile(inputEl.files[0]); inputEl.value = ""; });
+}
+function setJdMode(mode) {
+  state.jd.mode = mode;
+  $("#jdTabPaste").setAttribute("aria-selected", mode === "paste");
+  $("#jdTabFile").setAttribute("aria-selected", mode === "file");
+  $("#jdPastePane").hidden = mode !== "paste";
+  $("#jdFilePane").hidden = mode !== "file";
+  updateRunState();
+}
+$("#jdTabPaste").onclick = () => setJdMode("paste");
+$("#jdTabFile").onclick = () => setJdMode("file");
+wireDrop($("#jdDrop"), $("#jdFile"), async (f) => {
+  showErr($("#jdErr"), ""); $("#jdDrop").querySelector("strong").textContent = "Reading…";
+  try {
+    const { text } = await readFileText(f);
+    state.jd.fileText = text; state.jd.fileName = f.name;
+    $("#jdChipName").textContent = `${f.name} · ${text.length.toLocaleString()} characters`;
+    $("#jdChip").hidden = false; $("#jdDrop").hidden = true;
+  } catch (e) { showErr($("#jdErr"), e.message); }
+  $("#jdDrop").querySelector("strong").textContent = "Drop the JD here";
+  updateRunState();
+});
+$("#jdClear").onclick = () => { state.jd.fileText = ""; $("#jdChip").hidden = true; $("#jdDrop").hidden = false; updateRunState(); };
+wireDrop($("#cvDrop"), $("#cvFile"), async (f) => {
+  showErr($("#cvErr"), ""); $("#cvDrop").querySelector("strong").textContent = "Reading…";
+  try {
+    const { text } = await readFileText(f);
+    state.cv.fileText = text; state.cv.fileName = f.name;
+    $("#cvChipName").textContent = `${f.name} · ${text.length.toLocaleString()} characters`;
+    $("#cvChip").hidden = false; $("#cvDrop").hidden = true;
+  } catch (e) { showErr($("#cvErr"), e.message); }
+  $("#cvDrop").querySelector("strong").textContent = "Drop the resume here";
+  updateRunState();
+});
+$("#cvClear").onclick = () => { state.cv.fileText = ""; $("#cvChip").hidden = true; $("#cvDrop").hidden = false; updateRunState(); };
+$("#cvPasteToggle").onclick = () => { $("#cvPastePane").hidden = !$("#cvPastePane").hidden; if (!$("#cvPastePane").hidden) $("#cvText").focus(); };
+$("#jdText").addEventListener("input", updateRunState);
+$("#cvText").addEventListener("input", updateRunState);
+
+$("#goalUploadLink").onclick = () => $("#goalFile").click();
+$("#goalFile").addEventListener("change", async () => {
+  const f = $("#goalFile").files[0]; $("#goalFile").value = "";
+  if (!f) return;
+  showErr($("#goalErr"), "");
+  try {
+    const { text, buf } = await readFileText(f);
+    let headings = [], primary = null;
+    if (f.name.toLowerCase().endsWith(".docx")) ({ headings, primary } = await goalDocxInfo(buf));
+    state.goal = { custom: true, name: f.name, text: text.slice(0, 20000), headings, primary };
+    $("#goalName").textContent = f.name;
+    $("#goalHeads").textContent = headings.length ? "Sections: " + headings.join(" → ") : "No heading styles found; Claude will read the section order from the text.";
+    $("#goalColour").innerHTML = primary
+      ? `Primary colour <span class="swatch" style="background:#${primary}"></span> #${primary}`
+      : "Primary colour: built-in navy (no cell fill found).";
+    $("#goalBuiltin").hidden = true; $("#goalCustom").hidden = false;
+  } catch (e) { showErr($("#goalErr"), e.message); }
+});
+$("#goalReset").onclick = () => {
+  state.goal = { custom: false, name: "", text: "", headings: [], primary: null };
+  $("#goalBuiltin").hidden = false; $("#goalCustom").hidden = true;
+};
+
+/* ---------- prompt ---------- */
+const RULES = `NON-NEGOTIABLE RULES
+SOURCE OF TRUTH
+1. The resume is the only source of facts. NEVER add skills, tools, employers, titles, dates, metrics, certifications or achievements not in it.
+2. MAY: reword using the JD's vocabulary where the candidate demonstrably did that work; regroup similar items; rename section headings; reorder bullets to lead with the most JD-relevant; split paragraphs into bullets.
+3. MAY NOT: upgrade scope/seniority, turn a proof of concept into production, turn a skills-list keyword into delivered work, merge two projects' outcomes, invent numbers. Every digit in the output must come from the resume (or the JD if quoting a JD requirement).
+4. Omit personal details silently: date of birth, father's name, marital status, address, phone, email, photo, nationality.
+5. Keep all roles and substantive content; tighten wording only. Do not drop an employer.
+HEADER
+6. headline = short title built from the candidate's own roles + the JD domain, then a credential from the resume, e.g. "Copilot Studio Developer — Power Platform & AI Agent Orchestration  │  MBA, Nagpur University". Never claim a seniority/discipline the resume does not support (a 3-year software engineer is not "Senior Data Engineer").
+SELF ASSESSMENT
+7. Derive 9–14 parameters from the JD's own requirements and named key areas (JD wording, optional short parenthetical of sub-skills). Cover every named technology/key area. Do not pad.
+8. Rate 1.0–5.0 in 0.5 steps, honestly. 5 = named + delivered + in production + multiple evidence points. 4–4.5 = clear delivered evidence, minor gap vs JD wording. 3–3.5 = partial/adjacent. 2–2.5 = mentioned/thin. 1–1.5 = absent or keyword only. Caps: a technology only in a skills list <=2.0; proof-of-concept <=3.0; an adjacent skill never earns the named skill's rating (Spark compute-cost tuning is not LLM token-cost optimisation; consuming MCP is not authoring MCP servers; a vector DB for retrieval is not agent memory). Do not inflate to be kind or deflate to be harsh.
+9. evidence must start with exactly "Direct match — " (rating >=4.0), "Partial match — " (2.0–3.5) or "Gap — " (<=1.5), then specific tools/outcomes from the resume; for gaps say exactly what is missing. 1–2 sentences.
+10. Order rows by rating, highest first.
+CONTENT SECTIONS
+11. Order after Summary and Self Assessment: Professional Experience, Selected Projects (only if the resume has separate projects), Education, then Certifications/Research/Leadership if present (or follow the uploaded goal file). Role entry: title "Role — Company", meta "Location  |  Mon YYYY – Mon YYYY", bullets. Education: title = degree, meta = "Institution  |  Grade  |  Years". Bullets: one idea each, past tense (present for current role), concise.
+FLAGS (keep the human in the loop)
+12. Return flags [{severity: high|medium|info, text}] and questions (max 4). Always check: date inconsistencies (end before start, overlaps, gaps >6 months), undated roles, a role that has ended but is not marked ended, name mismatch, years of experience vs the JD's requested years (compute from dates), JD key areas with zero evidence, keyword-only claims, details dropped and why, rating judgement calls.`;
+
+const SHAPE_FULL = `{"name": string, "headline": string, "summary": string, "parameters": [{"param": string, "rating": number, "evidence": string}], "sections": [{"heading": string, "entries": [{"title"?: string, "meta"?: string, "bullets"?: [string]}]}], "flags": [{"severity": "high"|"medium"|"info", "text": string}], "questions": [string]}`;
+
+function goalBlock() {
+  if (!state.goal.custom) return "GOAL FORMAT: the built-in reference format. After the header, Professional Summary and Self Assessment, use the section order in rule 11.";
+  const h = state.goal.headings.length ? `Its section headings, in order: ${state.goal.headings.join(" | ")}.` : "No heading styles were detected; infer its section headings and order from the text below.";
+  return `GOAL FORMAT: the recruiter uploaded a goal CV ("${state.goal.name}"). Copy its section headings and their order for the content sections (Summary and Self Assessment stay first, as their own fields). Use it for STRUCTURE ONLY: take no facts from it. ${h}\n<goal_file>\n${state.goal.text.slice(0, 12000)}\n</goal_file>`;
+}
+function inputsBlock(inp) {
+  let s = `${goalBlock()}\n\n<job_description>\n${inp.jd.slice(0, 40000)}\n</job_description>\n\n<resume>\n${inp.cv.slice(0, 60000)}\n</resume>`;
+  if (inp.answers) s += `\n\n<recruiter_clarifications>\nThe recruiter confirmed these points. Use them only to correct dates/status or to resolve flags; they are not a licence to add new skills.\n${inp.answers.slice(0, 6000)}\n</recruiter_clarifications>`;
+  return s;
+}
+const INTRO = "You are a careful recruiting assistant. Rewrite a candidate's resume into a CV tailored to a job description, and rate the candidate honestly against the JD. Today is " + new Date().toISOString().slice(0, 10) + ".";
+function promptFull(inp) {
+  return `${INTRO}\n\n${RULES}\n\n${inputsBlock(inp)}\n\nOUTPUT: reply with ONLY one JSON object, no prose and no code fence, of this shape:\n${SHAPE_FULL}\n"sections" holds the content sections only (not the summary or self assessment). Use plain text inside strings (no markdown).`;
+}
+function promptParams(inp) {
+  return `${INTRO}\n\nThis is pass 1 of 2: the Self Assessment only.\n\n${RULES}\n\n${inputsBlock(inp)}\n\nOUTPUT: reply with ONLY one JSON object: {"parameters": [{"param": string, "rating": number, "evidence": string}]}`;
+}
+function promptSections(inp, params) {
+  return `${INTRO}\n\nThis is pass 2 of 2. The Self Assessment is already done (below, for context; do not repeat it). Now write the header, summary, content sections, flags and questions.\n\n${RULES}\n\n<self_assessment_done>\n${JSON.stringify(params)}\n</self_assessment_done>\n\n${inputsBlock(inp)}\n\nOUTPUT: reply with ONLY one JSON object: {"name": string, "headline": string, "summary": string, "sections": [{"heading": string, "entries": [{"title"?: string, "meta"?: string, "bullets"?: [string]}]}], "flags": [{"severity": "high"|"medium"|"info", "text": string}], "questions": [string]}`;
+}
+function parseJsonLoose(text) {
+  const t = String(text || "").trim();
+  try { return JSON.parse(t); } catch (e) {}
+  const fence = t.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fence) { try { return JSON.parse(fence[1]); } catch (e) {} }
+  const a = t.indexOf("{"), b = t.lastIndexOf("}");
+  if (a >= 0 && b > a) { try { return JSON.parse(t.slice(a, b + 1)); } catch (e) {} }
+  return null;
+}
+
+/*CORE_START*/
+const PREFIX = { direct: "Direct match — ", partial: "Partial match — ", gap: "Gap — " };
+function clampRating(r) {
+  const n = Number(r);
+  if (!isFinite(n)) return 1;
+  return Math.min(5, Math.max(1, Math.round(n * 2) / 2));
+}
+function prefixFor(r) { return r >= 4 ? PREFIX.direct : r >= 2 ? PREFIX.partial : PREFIX.gap; }
+function fixPrefix(evidence, r) {
+  const body = String(evidence || "").replace(/^\s*(Direct match|Partial match|Gap)\s*[—–-]\s*/i, "");
+  return prefixFor(r) + body;
+}
+function stars(r) { const f = Math.floor(r); return "★".repeat(f) + "☆".repeat(5 - f); }
+function numTokens(s) {
+  return (String(s || "").match(/\d[\d,.]*/g) || [])
+    .map((t) => t.replace(/,/g, "").replace(/\.+$/, ""))
+    .filter((t) => t.length >= 2);
+}
+function integrityCheck(cv, sourceText) {
+  const src = new Set(numTokens(sourceText));
+  const texts = [cv.headline, cv.summary];
+  for (const p of cv.parameters || []) texts.push(p.param, p.evidence);
+  for (const s of cv.sections || []) for (const e of s.entries || []) { texts.push(e.title, e.meta); for (const b of e.bullets || []) texts.push(b); }
+  const bad = new Set();
+  for (const t of texts) for (const n of numTokens(t)) if (!src.has(n)) bad.add(n);
+  return [...bad];
+}
+const CONTACT_RE = [/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g, /(?:\+?\d[\d ()-]{8,}\d)/g];
+function scrubContacts(cv) {
+  let hits = 0;
+  const scrub = (s) => { if (typeof s !== "string") return s; let o = s; for (const re of CONTACT_RE) o = o.replace(re, () => { hits++; return ""; }); return o === s ? s : o.replace(/\s{2,}/g, " ").replace(/\s+([,.;|])/g, "$1").trim(); };
+  cv.headline = scrub(cv.headline); cv.summary = scrub(cv.summary);
+  for (const p of cv.parameters) p.evidence = scrub(p.evidence);
+  for (const s of cv.sections) for (const e of s.entries) { e.title = scrub(e.title); e.meta = scrub(e.meta); e.bullets = (e.bullets || []).map(scrub).filter(Boolean); }
+  return hits;
+}
+function normalize(raw) {
+  const cv = {
+    name: String(raw?.name || "").trim(),
+    headline: String(raw?.headline || "").trim(),
+    summary: String(raw?.summary || "").trim(),
+    parameters: (Array.isArray(raw?.parameters) ? raw.parameters : []).filter((p) => p && p.param).map((p) => {
+      const rating = clampRating(p.rating);
+      return { param: String(p.param).trim(), rating, evidence: fixPrefix(p.evidence, rating) };
+    }),
+    sections: (Array.isArray(raw?.sections) ? raw.sections : []).filter((s) => s && s.heading).map((s) => ({
+      heading: String(s.heading).trim(),
+      entries: (Array.isArray(s.entries) ? s.entries : []).map((e) => ({
+        title: e?.title ? String(e.title).trim() : "",
+        meta: e?.meta ? String(e.meta).trim() : "",
+        bullets: (Array.isArray(e?.bullets) ? e.bullets : []).map((b) => String(b).replace(/^\s*[•\-*]\s*/, "").trim()).filter(Boolean),
+      })),
+    })),
+    flags: (Array.isArray(raw?.flags) ? raw.flags : []).filter((f) => f && f.text).map((f) => ({
+      severity: ["high", "medium", "info"].includes(String(f.severity).toLowerCase()) ? String(f.severity).toLowerCase() : "info",
+      text: String(f.text).trim(),
+    })),
+    questions: (Array.isArray(raw?.questions) ? raw.questions : []).map((q) => String(typeof q === "string" ? q : q?.text || "").trim()).filter(Boolean).slice(0, 4),
+  };
+  cv.parameters.sort((a, b) => b.rating - a.rating);
+  return cv;
+}
+
+/* DOCX in the fixed reference design. `D` is the docx library namespace. */
+function buildDocx(D, cv, primary) {
+  const P = (primary || "0F1E33").toUpperCase();
+  const { Document, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, ShadingType, BorderStyle, AlignmentType, TableLayoutType, VerticalAlign, HeadingLevel } = D;
+  const W = 10240;
+  const none = { style: BorderStyle.NONE, size: 0, color: P };
+  const thin = { style: BorderStyle.SINGLE, size: 4, color: "AAAAAA" };
+  const run = (text, o = {}) => new TextRun({ text, font: "Calibri", ...o });
+  const children = [];
+
+  // Header band
+  children.push(new Table({
+    width: { size: W, type: WidthType.DXA }, columnWidths: [W], layout: TableLayoutType.FIXED,
+    borders: { top: none, bottom: none, left: none, right: none, insideHorizontal: none, insideVertical: none },
+    rows: [new TableRow({ children: [new TableCell({
+      width: { size: W, type: WidthType.DXA },
+      shading: { type: ShadingType.CLEAR, color: "auto", fill: P },
+      margins: { top: 260, bottom: 260, left: 300, right: 300 },
+      borders: { top: none, bottom: none, left: none, right: none },
+      children: [
+        new Paragraph({ spacing: { after: 60 }, children: [run((cv.name || "").toUpperCase(), { bold: true, size: 40, color: "FFFFFF" })] }),
+        new Paragraph({ children: [run(cv.headline || "", { size: 24, color: "BFEFEA" })] }),
+      ],
+    })] })],
+  }));
+
+  const heading = (text) => new Paragraph({
+    heading: HeadingLevel.HEADING_1, keepNext: true,
+    spacing: { before: 320, after: 140 },
+    border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: P, space: 4 } },
+    children: [run(text, { bold: true, size: 26, color: P })],
+  });
+
+  if (cv.summary) {
+    children.push(heading("Professional Summary"));
+    children.push(new Paragraph({ spacing: { after: 160 }, children: [run(cv.summary, { size: 21, color: "222222" })] }));
+  }
+
+  if (cv.parameters.length) {
+    children.push(heading("Self Assessment"));
+    const cols = [3200, 1800, 5240];
+    const m = { top: 80, bottom: 80, left: 80, right: 80 };
+    const mRate = { top: 80, bottom: 80, left: 40, right: 40 };
+    const cell = (i, kids, extra = {}) => new TableCell({
+      width: { size: cols[i], type: WidthType.DXA }, margins: i === 1 ? mRate : m,
+      verticalAlign: VerticalAlign.CENTER, children: kids, ...extra,
+    });
+    const hdrShade = { type: ShadingType.CLEAR, color: "auto", fill: P };
+    const hdr = new TableRow({ tableHeader: true, cantSplit: true, children: [
+      cell(0, [new Paragraph({ children: [run("JD Parameter", { bold: true, size: 20, color: "FFFFFF" })] })], { shading: hdrShade }),
+      cell(1, [new Paragraph({ alignment: AlignmentType.CENTER, children: [run("Rating", { bold: true, size: 20, color: "FFFFFF" })] })], { shading: hdrShade }),
+      cell(2, [new Paragraph({ children: [run("Evidence", { bold: true, size: 20, color: "FFFFFF" })] })], { shading: hdrShade }),
+    ] });
+    const rows = [...cv.parameters].sort((a, b) => b.rating - a.rating).map((p) => new TableRow({ cantSplit: true, children: [
+      cell(0, [new Paragraph({ children: [run(p.param, { bold: true, size: 19, color: P })] })]),
+      cell(1, [new Paragraph({ alignment: AlignmentType.CENTER, children: [
+        run(stars(p.rating) + "  ", { bold: true, size: 20, color: "E8A33D" }),
+        run(p.rating.toFixed(1) + "/5", { italics: true, size: 17, color: "555555" }),
+      ] })]),
+      cell(2, [new Paragraph({ children: [run(p.evidence, { size: 19, color: "000000" })] })]),
+    ] }));
+    children.push(new Table({
+      width: { size: W, type: WidthType.DXA }, columnWidths: cols, layout: TableLayoutType.FIXED,
+      borders: { top: thin, bottom: thin, left: thin, right: thin, insideHorizontal: thin, insideVertical: thin },
+      rows: [hdr, ...rows],
+    }));
+  }
+
+  for (const s of cv.sections) {
+    children.push(heading(s.heading));
+    for (const e of s.entries) {
+      const hasBullets = e.bullets && e.bullets.length;
+      if (e.title) children.push(new Paragraph({ keepNext: !!(e.meta || hasBullets), keepLines: true, spacing: { before: 180, after: 40 }, children: [run(e.title, { bold: true, size: 22, color: P })] }));
+      if (e.meta) children.push(new Paragraph({ keepNext: !!hasBullets, keepLines: true, spacing: { after: 100 }, children: [run(e.meta, { italics: true, size: 19, color: "1F6F6B" })] }));
+      (e.bullets || []).forEach((b, i, arr) => children.push(new Paragraph({
+        keepLines: true, keepNext: arr.length <= 3 && i < arr.length - 1,
+        spacing: { after: 70 }, indent: { left: 320, hanging: 200 },
+        children: [run("•  " + b, { size: 20, color: "222222" })],
+      })));
+    }
+  }
+
+  return new Document({
+    creator: "CV Redesigner", title: (cv.name || "Candidate") + " CV",
+    styles: {
+      default: { document: { run: { font: "Calibri", size: 20 } } },
+      paragraphStyles: [{ id: "Heading1", name: "Heading 1", basedOn: "Normal", next: "Normal", quickFormat: true,
+        run: { font: "Calibri", bold: true, size: 26, color: P }, paragraph: { spacing: { before: 320, after: 140 }, keepNext: true } }],
+    },
+    sections: [{ properties: { page: { size: { width: 12240, height: 15840 }, margin: { top: 900, bottom: 900, left: 1000, right: 1000 } } }, children }],
+  });
+}
+/*CORE_END*/
+
+/* ---------- review rendering ---------- */
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const SEV_ORDER = { high: 0, medium: 1, info: 2 };
+function guardFlag() {
+  const r = state.result;
+  if (!r || state.isExample) return null;
+  const bad = integrityCheck(r, r._source || "");
+  return bad.length ? { severity: "high", text: "Figures not found in the resume or JD — verify or remove: " + bad.join(", "), guard: true } : null;
+}
+function renderFlags() {
+  const r = state.result;
+  const g = guardFlag();
+  const list = [...(g ? [g] : []), ...r.flags].sort((a, b) => (a.guard ? -1 : b.guard ? 1 : SEV_ORDER[a.severity] - SEV_ORDER[b.severity]));
+  $("#flags").innerHTML = list.length
+    ? list.map((f) => `<li class="flag ${f.severity}"><span class="sev">${f.severity}</span><span>${esc(f.text)}</span></li>`).join("")
+    : `<li class="flag info"><span class="sev">info</span><span>No flags raised.</span></li>`;
+}
+function rateOptions(sel) {
+  let o = "";
+  for (let v = 5; v >= 1; v -= 0.5) o += `<option value="${v}"${v === sel ? " selected" : ""}>${v.toFixed(1)}</option>`;
+  return o;
+}
+function renderTable() {
+  const ps = state.result.parameters;
+  $("#paramCount").textContent = `${ps.length} parameters` + (ps.length < 9 || ps.length > 14 ? " · the design expects 9–14" : "");
+  $("#assessBody").innerHTML = ps.map((p, i) => `<tr data-i="${i}">
+    <td class="param"><label class="sr" for="pp${i}">Parameter</label><textarea id="pp${i}" data-k="param" rows="3">${esc(p.param)}</textarea></td>
+    <td class="rate"><span class="stars" aria-hidden="true">${stars(p.rating)}</span><label class="sr" for="pr${i}">Rating</label><select id="pr${i}" data-k="rating">${rateOptions(p.rating)}</select></td>
+    <td class="ev"><label class="sr" for="pe${i}">Evidence</label><textarea id="pe${i}" data-k="evidence">${esc(p.evidence)}</textarea></td>
+    <td class="del"><button class="x" type="button" data-del="${i}" aria-label="Remove row">×</button></td></tr>`).join("");
+}
+$("#assessBody").addEventListener("input", (e) => {
+  const tr = e.target.closest("tr"); if (!tr) return;
+  const p = state.result.parameters[+tr.dataset.i]; const k = e.target.dataset.k;
+  if (k === "param") p.param = e.target.value;
+  if (k === "evidence") { p.evidence = e.target.value; renderFlags(); }
+});
+$("#assessBody").addEventListener("change", (e) => {
+  if (e.target.dataset.k !== "rating") return;
+  const p = state.result.parameters[+e.target.closest("tr").dataset.i];
+  p.rating = clampRating(e.target.value);
+  p.evidence = fixPrefix(p.evidence, p.rating);
+  state.result.parameters.sort((a, b) => b.rating - a.rating);
+  renderTable();
+  const ni = state.result.parameters.indexOf(p); document.getElementById("pr" + ni)?.focus();
+});
+$("#assessBody").addEventListener("click", (e) => {
+  const d = e.target.closest("[data-del]"); if (!d) return;
+  state.result.parameters.splice(+d.dataset.del, 1); renderTable(); renderFlags();
+});
+function renderPreview() {
+  const r = state.result;
+  $("#preview").innerHTML = r.sections.map((s) => `<div class="sec">${esc(s.heading)}</div>` + s.entries.map((e) =>
+    (e.title ? `<div class="et">${esc(e.title)}</div>` : "") + (e.meta ? `<div class="em">${esc(e.meta)}</div>` : "") +
+    (e.bullets.length ? `<ul>${e.bullets.map((b) => `<li>${esc(b)}</li>`).join("")}</ul>` : "")).join("")).join("") || `<p class="muted">No other sections.</p>`;
+}
+function renderReview() {
+  const r = state.result;
+  $("#exampleNote").hidden = !state.isExample;
+  renderFlags();
+  $("#questions").innerHTML = r.questions.length ? r.questions.map((q) => `<li>${esc(q)}</li>`).join("") : `<li class="muted">No open questions.</li>`;
+  $("#fName").value = r.name; $("#fHeadline").value = r.headline; $("#fSummary").value = r.summary;
+  renderTable(); renderPreview();
+  $("#regenBtn").disabled = state.isExample || !sample;
+  $("#dlMsg").textContent = "";
+}
+$("#fName").addEventListener("input", (e) => { state.result.name = e.target.value; });
+$("#fHeadline").addEventListener("input", (e) => { state.result.headline = e.target.value; renderFlags(); });
+$("#fSummary").addEventListener("input", (e) => { state.result.summary = e.target.value; renderFlags(); });
+
+/* ---------- Claude ---------- */
+let sample = null, downloads = null;
+const ERR_COPY = {
+  not_granted: "Claude needs your consent to run from this page. Reload the page and choose Allow when asked; the call uses your own Claude usage.",
+  sampling_disabled: "Claude isn't available for this account or organization.",
+  rate_limited: "Too many requests right now, or your usage limit was reached. Wait a minute, then try again.",
+  session_expired: "Your Claude session expired. Sign in again, then retry.",
+  prompt_too_large: "The JD and resume are too long to send together. Trim the JD to its requirements and try again.",
+  refused: "Claude declined this request. Check that the inputs are a JD and a resume.",
+  empty_completion: "Claude returned nothing. Try again.",
+  invalid_json: "Claude's reply couldn't be read as a CV. Try again.",
+  upstream_error: "The connection to Claude dropped. Try again.",
+};
+function errCopy(e) { return ERR_COPY[e?.code] || (e?.code ? ERR_COPY.upstream_error : (e?.message || "Something went wrong.")); }
+const HIDE_CODES = new Set(["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed"]);
+
+function updateRunState() {
+  const ok = !!jdText() && !!cvText();
+  $("#runBtn").disabled = state.busy || !ok || !sample;
+  $("#runHint").textContent = !sample ? (sampleChecked ? "Claude isn't available in this view. Open the artifact on claude.ai to run it." : "Connecting to Claude…")
+    : !ok ? "Add a job description and a resume to start." : "Ready. Claude takes about a minute or two.";
+}
+let sampleChecked = false;
+
+function setBusy(on) {
+  state.busy = on;
+  $("#cancelBtn").hidden = !on; $("#progress").hidden = !on;
+  $("#regenBtn").disabled = on || state.isExample || !sample;
+  updateRunState();
+}
+async function callClaude(prompt, opts, label) {
+  $("#progMsg").textContent = label + " · Thinking…"; $("#progTail").textContent = "";
+  const o = { modelTier: "complex", signal: opts.signal, onText: ({ text }) => {
+    $("#progMsg").textContent = `${label} · Writing… ${text.length.toLocaleString()} characters`;
+    $("#progTail").textContent = text.slice(-420);
+  } };
+  if (opts.fresh) o.cache = false;
+  return sample(prompt, o);
+}
+async function runModel(inp, fresh) {
+  state.ctl = new AbortController();
+  const opts = { signal: state.ctl.signal, fresh };
+  const r = await callClaude(promptFull(inp), opts, "Reading the JD and resume");
+  let data = r.truncated ? null : parseJsonLoose(r.text);
+  if (data) return data;
+  if (!r.truncated) throw { code: "invalid_json" };
+  // Too long for one answer: split into ratings, then sections.
+  state.ctl = new AbortController(); opts.signal = state.ctl.signal;
+  const r1 = await callClaude(promptParams(inp), opts, "Long CV, pass 1 of 2: rating");
+  const p1 = parseJsonLoose(r1.text);
+  if (!p1 || !Array.isArray(p1.parameters)) throw { code: "invalid_json" };
+  state.ctl = new AbortController(); opts.signal = state.ctl.signal;
+  const r2 = await callClaude(promptSections(inp, p1.parameters), opts, "Long CV, pass 2 of 2: sections");
+  const p2 = parseJsonLoose(r2.text);
+  if (!p2) throw { code: "invalid_json" };
+  const merged = { ...p2, parameters: p1.parameters };
+  merged.flags = [...(p2.flags || []), { severity: "info", text: "This CV was produced in two passes because it was long; check that the summary and ratings agree." }];
+  if (r2.truncated) merged.flags.unshift({ severity: "high", text: "The section rewrite was cut short. Some later sections may be missing; compare against the resume." });
+  return merged;
+}
+async function run(fresh) {
+  if (!sample || state.busy) return;
+  const inp = { jd: jdText(), cv: cvText(), answers: fresh ? $("#answers").value.trim() : "" };
+  if (!inp.jd || !inp.cv) return;
+  showErr($("#runErr"), "");
+  setBusy(true);
+  try {
+    const raw = await runModel(inp, fresh);
+    const cv = normalize(raw);
+    if (!cv.parameters.length || !cv.sections.length) throw { code: "invalid_json" };
+    const hits = scrubContacts(cv);
+    if (hits) cv.flags.unshift({ severity: "high", text: `Removed ${hits} contact detail(s) (email or phone) that appeared in the output.` });
+    if (cv.parameters.length < 9 || cv.parameters.length > 14) cv.flags.push({ severity: "medium", text: `Claude returned ${cv.parameters.length} parameters; the design expects 9–14.` });
+    cv._source = inp.jd + "\n" + inp.cv + "\n" + (inp.answers || "");
+    state.result = cv; state.isExample = false;
+    renderReview();
+    $("#review").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  } catch (e) {
+    if (e?.code !== "cancelled") showErr($("#runErr"), errCopy(e));
+    if (HIDE_CODES.has(e?.code)) { sample = null; }
+  } finally {
+    state.ctl = null; setBusy(false);
+  }
+}
+$("#runBtn").onclick = () => run(false);
+$("#regenBtn").onclick = () => run(true);
+$("#cancelBtn").onclick = () => state.ctl?.abort();
+
+/* ---------- download ---------- */
+$("#dlBtn").onclick = async () => {
+  const msg = $("#dlMsg"); msg.className = "toast"; msg.textContent = "Building the Word file…";
+  if (!downloads) { msg.className = "toast bad"; msg.textContent = "Downloads aren't available in this view. Open the artifact on claude.ai to save the file."; return; }
+  $("#dlBtn").disabled = true;
+  try {
+    await loadScript(LIBS.docx);
+    const cv = state.result;
+    const doc = buildDocx(window.docx, cv, state.goal.custom ? state.goal.primary : null);
+    const blob = await window.docx.Packer.toBlob(doc);
+    const base = (cv.name || "Candidate").trim().replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_|_$/g, "") || "Candidate";
+    await downloads.save({ filename: `${base}_CV.docx`, data: blob });
+    msg.className = "toast good"; msg.textContent = `Saved ${base}_CV.docx`;
+  } catch (e) {
+    msg.className = "toast bad";
+    msg.textContent = e?.code === "declined" ? "Download cancelled." : e?.code === "rate_limited" ? "A save prompt is already open. Finish it, then try again."
+      : e?.code ? "This view can't save files. Open the artifact on claude.ai and try again." : (e?.message || "Couldn't build the file.");
+  } finally { $("#dlBtn").disabled = false; }
+};
+
+/* ---------- example (fictional) ---------- */
+state.result = normalize({
+  name: "Sam Example",
+  headline: "Data Engineer — Azure Lakehouse & Streaming Pipelines  │  B.Tech, Example Institute",
+  summary: "Data engineer with 4 years of experience building batch and streaming pipelines on Azure. Designed Delta Lake models and Databricks jobs for a retail analytics platform, and automated data-quality checks used by three downstream teams.",
+  parameters: [
+    { param: "Azure Data Platform (ADF, Databricks, ADLS)", rating: 5, evidence: "Direct match — built ADF-orchestrated Databricks jobs on ADLS Gen2 for two production platforms, with on-call ownership." },
+    { param: "Spark & PySpark Transformation", rating: 4.5, evidence: "Direct match — PySpark ETL across retail and logistics data; cut a nightly job from 3 hours to 40 minutes." },
+    { param: "Data Modelling (Delta Lake, Star Schema)", rating: 4, evidence: "Direct match — designed medallion Delta tables and a star schema for sales reporting." },
+    { param: "Data Quality & Testing", rating: 4, evidence: "Direct match — automated Great Expectations checks adopted by three downstream teams." },
+    { param: "Streaming (Kafka, Event Hubs)", rating: 3, evidence: "Partial match — consumed Event Hubs streams in one project; no Kafka cluster ownership." },
+    { param: "CI/CD for Data (Azure DevOps, Git)", rating: 3, evidence: "Partial match — Git and Azure DevOps pipelines for notebook deployment; no infrastructure-as-code." },
+    { param: "SQL Performance Tuning", rating: 3, evidence: "Partial match — index and partition tuning on Azure SQL; no warehouse-scale benchmarks." },
+    { param: "Power BI Semantic Models", rating: 2, evidence: "Partial match — Power BI listed in skills only; no delivered report or model described." },
+    { param: "Terraform / Infrastructure as Code", rating: 1, evidence: "Gap — the resume does not mention Terraform, Bicep or any infrastructure-as-code tool." },
+  ],
+  sections: [
+    { heading: "Professional Experience", entries: [
+      { title: "Data Engineer — Northwind Retail", meta: "Pune, India  |  Jan 2023 – Present", bullets: [
+        "Build ADF-orchestrated Databricks pipelines that load sales and inventory data into Delta Lake.",
+        "Designed the medallion layer and star schema behind weekly sales reporting.",
+        "Automate data-quality checks with Great Expectations for three downstream teams." ] },
+      { title: "Associate Data Engineer — Contoso Logistics", meta: "Pune, India  |  Jul 2021 – Dec 2022", bullets: [
+        "Rewrote a nightly PySpark job, cutting runtime from 3 hours to 40 minutes.",
+        "Consumed Event Hubs shipment events into a near-real-time tracking table." ] } ] },
+    { heading: "Education", entries: [ { title: "B.Tech, Computer Engineering", meta: "Example Institute of Technology  |  CGPA 8.1/10  |  2017 – 2021" } ] },
+  ],
+  flags: [
+    { severity: "medium", text: "JD asks for 5+ years; the resume dates add up to about 4 years 3 months (Jul 2021 – present)." },
+    { severity: "medium", text: "Terraform is a named key area in the JD with no evidence in the resume." },
+    { severity: "info", text: "Dropped date of birth and home address from the header." },
+  ],
+  questions: [ "Has the candidate used Terraform or Bicep anywhere not listed on the resume?", "Is the Northwind role current? The resume says 'Present'." ],
+});
+renderReview();
+
+/* ---------- capabilities ---------- */
+(async () => {
+  const c = window.claude;
+  const [s, d] = await Promise.all([
+    c?.use ? c.use("sample").catch(() => null) : null,
+    c?.use ? c.use("downloads").catch(() => null) : null,
+  ]);
+  sample = s; downloads = d; sampleChecked = true;
+  updateRunState(); $("#regenBtn").disabled = state.isExample || !sample || state.busy;
+})();
+updateRunState();
+</script>
